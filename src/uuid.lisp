@@ -188,26 +188,70 @@
 
 
 (defun set-version (buffer version)
-  (declare (type (array (unsigned-byte 8) (16)) buffer)
+  (declare (type (array (unsigned-byte 8) (*)) buffer)
            (type (unsigned-byte 8) version))
   (setf (aref buffer 6) (logior (logand (aref buffer 6) #x0f) version))
   (setf (aref buffer 8) (logior (logand (aref buffer 8) #x3f) #x80))
   buffer)
 
 
-(defun random-uuid (&key (random-state *random-state*))
+(defun random-uuid (&key (generator nil have-generator) (random-state *random-state* have-random-state))
+  "Construct a new random UUID. If `generator` is supplied, it must be a function
+   callable with a single argument (the number of random bytes to generate), which
+   answers an array of \"random\" `(unsigned-byte 8)` numbers. If no generator
+   function is provided, the UUID is generated using Lisp's built-in `random`
+   function, passing the given `random-state` along, which defaults to the value
+   of the global `*random-state*` variable."
+  (when (and have-generator have-random-state)
+    (error "cannot use both, a ~S function and ~S"
+           :generator :random-state))
   (let ((buffer (make-array 16 :element-type '(unsigned-byte 8))))
-    (loop
-      :for k :upfrom 0 :below 16
-      :do (setf (aref buffer k) (random 256 random-state)))
+    (if have-generator
+        (let ((bytes (funcall generator 16)))
+          (loop
+            :for k :upfrom 0 :below 16
+            :do (setf (aref buffer k) (aref bytes k))))
+        (loop
+          :for k :upfrom 0 :below 16
+          :do (setf (aref buffer k) (random 256 random-state))))
     (uuid (set-version buffer #x40))))
 
 
-(defun uuid-for-name (string &key (start 0) end)
+(defun uuid-for-name (string 
+                      &key (start 0) end (digest :md5) (namespace nil))
   (let* ((string (string string))
          (end (or end (length string)))
          (bytes (string-to-utf-8-bytes (subseq string start end) :null-terminate nil))
-         (buffer (let ((digest (make-digest :md5)))
-                   (update-digest digest bytes)
-                   (produce-digest digest))))
-    (uuid (set-version buffer #x30))))
+         (buffer (set-version (let ((digest (make-digest digest)))
+                                (when namespace
+                                  (let ((bytes (uuid-bytes (uuid namespace))))
+                                    (update-digest digest bytes)))
+                                (update-digest digest bytes)
+                                (produce-digest digest))
+                              (ecase digest
+                                ((:md5) #x30)
+                                ((:sha1) #x50)))))
+    (let ((w1 0) (w2 0))
+      (loop
+        :for rp :upfrom 0 :below 8
+        :for wp :downfrom 56 :to 0 :by 8
+        :do (setf (ldb (byte 8 wp) w1) (aref buffer rp)))
+      (loop
+        :for rp :upfrom 8 :below 16
+        :for wp :downfrom 56 :to 0 :by 8
+        :do (setf (ldb (byte 8 wp) w2) (aref buffer rp)))
+      (%make-uuid w2 w1))))
+
+#|
+   0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                          time_low                             |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |       time_mid                |         time_hi_and_version   |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |clk_seq_hi_res |  clk_seq_low  |         node (0-1)            |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                         node (2-5)                            |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|#
