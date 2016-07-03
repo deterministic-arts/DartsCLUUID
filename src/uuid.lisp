@@ -26,8 +26,7 @@
 (defstruct (uuid (:copier nil) (:constructor %make-uuid (low-word high-word))
                  (:predicate uuidp))
   (low-word (error "missing low word") :type (unsigned-byte 64) :read-only t)
-  (high-word (error "missing high word") :type (unsigned-byte 64) :read-only t)
-  (%hash -1 :type fixnum))
+  (high-word (error "missing high word") :type (unsigned-byte 64) :read-only t))
 
 (defun uuid= (u1 u2)
   (and (eql (uuid-low-word u1) (uuid-low-word u2))
@@ -43,11 +42,8 @@
             (uuid-low-word u2))))))
 
 (defun uuid-hash (object)
-  (let ((value (uuid-%hash object)))
-    (if (>= value 0) value
-        (setf (uuid-%hash object)
-              (mod (logxor (uuid-high-word object) (uuid-low-word object))
-                   most-positive-fixnum)))))
+  (logxor (sxhash (uuid-high-word object))
+	  (sxhash (uuid-low-word object))))
 
 (declaim (inline uuid/= uuid<= uuid>= uuid>))
 
