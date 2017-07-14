@@ -182,6 +182,19 @@
          (%make-uuid low high)))
       (t (bad-value)))))
 
+(defmethod make-load-form ((object uuid) &optional environment)
+  (declare (ignore environment))
+  `(%make-uuid ,(uuid-low-word object) ,(uuid-high-word object)))
+
+(define-compiler-macro uuid (&whole form value)
+  (cond
+    ((uuidp value) `(quote ,value))
+    ((stringp value)
+     (let ((uuid (parse-uuid value)))
+       (if uuid
+           `(quote ,uuid)
+           form)))
+    (t form)))
 
 (defun set-version (buffer version)
   (declare (type (array (unsigned-byte 8) (*)) buffer)
@@ -198,6 +211,7 @@
    function is provided, the UUID is generated using Lisp's built-in `random`
    function, passing the given `random-state` along, which defaults to the value
    of the global `*random-state*` variable."
+  (declare (notinline uuid))
   (when (and have-generator have-random-state)
     (error "cannot use both, a ~S function and ~S"
            :generator :random-state))
@@ -237,3 +251,4 @@
         :for wp :downfrom 56 :to 0 :by 8
         :do (setf (ldb (byte 8 wp) w2) (aref buffer rp)))
       (%make-uuid w2 w1))))
+
