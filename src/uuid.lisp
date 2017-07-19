@@ -186,6 +186,7 @@
   (declare (ignore environment))
   `(%make-uuid ,(uuid-low-word object) ,(uuid-high-word object)))
 
+#-(and)
 (define-compiler-macro uuid (&whole form value)
   (cond
     ((uuidp value) `(quote ,value))
