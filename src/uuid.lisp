@@ -168,6 +168,7 @@
     (typecase object
       (uuid object)
       (string (or (parse-uuid object) (bad-value)))
+      (symbol (or (parse-uuid (symbol-name object)) (bad-value)))
       ((unsigned-byte 128) (%make-uuid (logand object #xFFFFFFFFFFFFFFFF) (ash object -64)))
       ((array (unsigned-byte 8) (16)) 
        (let ((high 0) (low 0))
