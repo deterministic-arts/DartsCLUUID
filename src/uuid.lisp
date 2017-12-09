@@ -136,6 +136,21 @@
                 :braces braces 
                 :downcase downcase)))
 
+(defun uuid-string-p (object
+                      &key lenient braces)
+  (and (stringp object)
+       (let ((start 0) (end (length object)))
+         (when braces
+           (unless (> (length object) 2) (return-from uuid-string-p nil))
+           (unless (eql (char object 0) #\{) (return-from uuid-string-p nil))
+           (unless (eql (char object (1- end)) #\}) (return-from uuid-string-p nil))
+           (incf start) (decf end))
+         (if lenient
+             (scan "^([0-9a-fA-F]{1,8})-([0-9a-fA-F]{1,4})-([0-9a-fA-F]{1,4})-([0-9a-fA-F]{1,4})-([0-9a-fA-F]{1,12})$"
+                   object :start start :end end)
+             (scan "^([0-9a-fA-F]{8})-([0-9a-fA-F]{4})-([0-9a-fA-F]{4})-([0-9a-fA-F]{4})-([0-9a-fA-F]{12})$"
+                   object :start start :end end)))
+       t))
 
 (defun parse-uuid (value &key (start 0) end)
   (let* ((string (string value))
