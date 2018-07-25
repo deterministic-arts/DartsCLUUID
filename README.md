@@ -35,6 +35,50 @@ case that
  
 where `XX` is one of `<`, `<=`, `=`, `>=`, `>`, `/=`. Note, that the actual
 implementation of the predicates is more efficient than that.
+  
+The hash function can be used in Common Lisp implementations, which
+support custom hash functions
+
+For example, in [CCL](https://ccl.clozure.com/)
+
+```
+(make-hash-table :test 'uuid= :hash-function 'uuid-hash)
+```
+
+In [SBCL](http://www.sbcl.org/manual/#Hash-Table-Extensions) you can
+
+```
+(sb-ext:define-hash-table-test uuid= #'uuid-hash)
+```
+
+and then use this as
+
+```
+(make-hash-table :test 'uuid=)
+```
+
+(but 
+
+```
+(make-hash-table :test #'uuid= :hash-function #'uuid-hash)
+```
+
+will work there, too)
+
+The ordering predicates can be used with data structures like [FSet](http://quickdocs.org/fset/)
+and [WBTree](http://quickdocs.org/dartsclhashtree/):
+
+```
+(define-wbtree uuid-wbtree 
+  (:key uuid)
+  (:test uuid<)
+  (:documentation "A weight-balanced binary tree, whose keys are
+    UUID values."))
+    
+(defvar *mapping* (make-uuid-wbtree (list "F664863A-B3D9-4EF4-BB22-E1061F0010D6" 'stuff)))
+
+*mapping* ;; => #<UUID-WBTREE #<UUID F664863A-B3D9-4EF4-BB22-E1061F0010D6> STUFF 1>
+```
 
 - **Function** `uuid=` _object1_ _object2_ &rarr; _boolean_
 - **Function** `uuid/=` _object1_ _object2_ &rarr; _boolean_
@@ -112,8 +156,8 @@ implementation of the predicates is more efficient than that.
   - an instance of type `uuid`, in which case it is returned unchanged
   - a string designator (string, symbol), whose string content is the 
     textual representation of a UUID in the format accepted by `parse-uuid`.
-  - a byte array (`(array (unsigned-byte) (16))`)
-  - an 128 bit unsigned integer number (`(unsigned-byte 128)`)
+  - a byte array (i.e., `(array (unsigned-byte 8) (16))`)
+  - an 128 bit unsigned integer number (i.e., `(unsigned-byte 128)`)
   
   If _object_ is neither of the above, the function signals a fatal
   condition of type `type-error`.
