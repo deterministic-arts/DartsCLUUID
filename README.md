@@ -11,19 +11,6 @@ kinds of UUIDs.
   Represents an UUID value. Basically, a 128 bit number (more or less)
   with added structure.
 
-- Function `uuid` _object_ &rarr; _uuid_
-
-  Coerces _object_ to a UUID value. The argument may be one of 
-  
-  - an instance of type `uuid`, in which case it is returned unchanged
-  - a string designator (string, symbol), whose string content is the 
-    textual representation of a UUID in the format accepted by `parse-uuid`.
-  - a byte array (`(array (unsigned-byte) (16))`)
-  - an 128 bit unsigned integer number (`(unsigned-byte 128)`)
-  
-  If _object_ is neither of the above, the function signals a fatal
-  condition of type `type-error`.
-
 - Function `uuidp` _object_ &rarr; _boolean_
 
   Tests, whether _object_ is a value of type `uuid`. This is equivalent
@@ -68,13 +55,73 @@ implementation of the predicates is more efficient than that.
 ## Reading and Writing
 
 - Function `parse-uuid` string `&key` _start_ _end_ &rarr; _object_
+
+  Parses the string representation of a UUID, returning the result as instance
+  of type `uuid`. The general format understood by this function is `XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX`
+  where each `X` is a hexadecimal digit. Optionally, the value may be enclosed
+  in curly braces, i.e., `{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}`; note, that
+  if the opening brace is present, the closing must be, too.
+  
+  If the value can be parsed, the function returns the UUID value. If an
+  error is detected, the function returns `nil`.
+  
+  This function will only inspect the portion of `string` in the region
+  represented by _start_ (inclusive) and _end_ (exclusive). If omitted,
+  _start_ defaults to 0 (the beginning of _string_) and _end_ to 
+  `(length string)`.
+
 - Function `print-uuid` _object_ `&key` _stream_ _braces_ _downcase_ &rarr; _answer_
+
+  Writes a string representation of _object_ in the "usual" format into the
+  given character stream _stream_ (which defaults to `*standard-output*`). The
+  representation written has the general format `XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX`, 
+  where each `X` is a hexadecimal digit. If _braces_ is true, the value is additionally 
+  enclosed in curly braces `{`/`}`. The default is to not use braces. If _downcase_, 
+  the function  uses lower case letters in the hex representation, otherwise it uses
+  upper case letters (the default).
+  
+  This function returns its first argument _object_
 
 ## Conversions
 
+- Function `uuid` _object_ &rarr; _uuid_
+
+  Coerces _object_ to a UUID value. The argument may be one of 
+  
+  - an instance of type `uuid`, in which case it is returned unchanged
+  - a string designator (string, symbol), whose string content is the 
+    textual representation of a UUID in the format accepted by `parse-uuid`.
+  - a byte array (`(array (unsigned-byte) (16))`)
+  - an 128 bit unsigned integer number (`(unsigned-byte 128)`)
+  
+  If _object_ is neither of the above, the function signals a fatal
+  condition of type `type-error`.
+
 - Function `uuid-bytes` _object_ &rarr; _array_
+
+  Answers an `(array (unsigned-byte 8) (16))`, which holds the contents
+  of the UUID _object_. The value _array_ can later be passed to function 
+  `uuid` to reconstruct the UUID value. For all UUID values _object_, it 
+  is always the case that `(uuid= object (uuid (uuid-bytes object)))`.
+
 - Function `uuid-string` _object_ `&key` _braces_ _downcase_ &rarr; _string_
+
+  Answers a string representation of _object_ in the "usual" format, i.e.,
+  `XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX`, where each `X` is a hexadecimal
+  digit. If _braces_ is true, the value is additionally enclosed in curly
+  braces `{`/`}`. The default is to not use braces. If _downcase_, the function 
+  uses lower case letters in the hex representation, otherwise it uses
+  upper case letters (the default).
+  
+  For any UUID value _object_ and any combination of argument values for
+  _braces_ and _downcase_, this function guarantees, that `(uuid= object (uuid (uuid-string object :braces braces :downcase downcase)))`
+
 - Function `uuid-number` _object_ &rarr; _value_
+
+  Answers an integer of type `(unsigned-byte 128)`, which holds the contents
+  of the UUID _object_. The value _value_ can later be passed to function 
+  `uuid` to reconstruct the UUID value. For all UUID values _object_, it 
+  is always the case that `(uuid= object (uuid (uuid-number object)))`.
 
 ## Format Information
 
