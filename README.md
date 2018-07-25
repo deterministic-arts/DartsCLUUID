@@ -6,12 +6,12 @@ kinds of UUIDs.
 
 ## Types
 
-- Type `uuid`
+- **Type** `uuid`
 
   Represents an UUID value. Basically, a 128 bit number (more or less)
   with added structure.
 
-- Function `uuidp` _object_ &rarr; _boolean_
+- **Function** `uuidp` _object_ &rarr; _boolean_
 
   Tests, whether _object_ is a value of type `uuid`. This is equivalent
   with `(typep object 'uuid)`.
@@ -35,18 +35,18 @@ case that
 where `XX` is one of `<`, `<=`, `=`, `>=`, `>`, `/=`. Note, that the actual
 implementation of the predicates is more efficient than that.
 
-- Function `uuid=` _object1_ _object2_ &rarr; _boolean_
-- Function `uuid/=` _object1_ _object2_ &rarr; _boolean_
-- Function `uuid<=` _object1_ _object2_ &rarr; _boolean_
-- Function `uuid<` _object1_ _object2_ &rarr; _boolean_
-- Function `uuid>=` _object1_ _object2_ &rarr; _boolean_
-- Function `uuid>` _object1_ _object2_ &rarr; _boolean_
+- **Function** `uuid=` _object1_ _object2_ &rarr; _boolean_
+- **Function** `uuid/=` _object1_ _object2_ &rarr; _boolean_
+- **Function** `uuid<=` _object1_ _object2_ &rarr; _boolean_
+- **Function** `uuid<` _object1_ _object2_ &rarr; _boolean_
+- **Function** `uuid>=` _object1_ _object2_ &rarr; _boolean_
+- **Function** `uuid>` _object1_ _object2_ &rarr; _boolean_
 
   Each of these functions compares the argument values, both of which must
   be instances of type `uuid`, and returns true, if the values have the 
   ordering/equality relationship hinted at by the suffix (`=`, `<`, ...)
 
-- Function `uuid-hash` _object_ &rarr; _fixnum_
+- **Function** `uuid-hash` _object_ &rarr; _fixnum_
 
   Computes a hash code for the UUID value _object_. The algorithm used is
   compatible with the type's notion of equality, i.e., for two UUID values
@@ -54,7 +54,7 @@ implementation of the predicates is more efficient than that.
 
 ## Reading and Writing
 
-- Function `parse-uuid` string `&key` _start_ _end_ &rarr; _object_
+- **Function** `parse-uuid` string `&key` _start_ _end_ &rarr; _object_
 
   Parses the string representation of a UUID, returning the result as instance
   of type `uuid`. The general format understood by this function is `XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX`
@@ -70,7 +70,7 @@ implementation of the predicates is more efficient than that.
   _start_ defaults to 0 (the beginning of _string_) and _end_ to 
   `(length string)`.
 
-- Function `print-uuid` _object_ `&key` _stream_ _braces_ _downcase_ &rarr; _answer_
+- **Function** `print-uuid` _object_ `&key` _stream_ _braces_ _downcase_ &rarr; _answer_
 
   Writes a string representation of _object_ in the "usual" format into the
   given character stream _stream_ (which defaults to `*standard-output*`). The
@@ -84,7 +84,7 @@ implementation of the predicates is more efficient than that.
 
 ## Conversions
 
-- Function `uuid` _object_ &rarr; _uuid_
+- **Function** `uuid` _object_ &rarr; _uuid_
 
   Coerces _object_ to a UUID value. The argument may be one of 
   
@@ -97,14 +97,14 @@ implementation of the predicates is more efficient than that.
   If _object_ is neither of the above, the function signals a fatal
   condition of type `type-error`.
 
-- Function `uuid-bytes` _object_ &rarr; _array_
+- **Function** `uuid-bytes` _object_ &rarr; _array_
 
   Answers an `(array (unsigned-byte 8) (16))`, which holds the contents
   of the UUID _object_. The value _array_ can later be passed to function 
   `uuid` to reconstruct the UUID value. For all UUID values _object_, it 
   is always the case that `(uuid= object (uuid (uuid-bytes object)))`.
 
-- Function `uuid-string` _object_ `&key` _braces_ _downcase_ &rarr; _string_
+- **Function** `uuid-string` _object_ `&key` _braces_ _downcase_ &rarr; _string_
 
   Answers a string representation of _object_ in the "usual" format, i.e.,
   `XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX`, where each `X` is a hexadecimal
@@ -116,7 +116,7 @@ implementation of the predicates is more efficient than that.
   For any UUID value _object_ and any combination of argument values for
   _braces_ and _downcase_, this function guarantees, that `(uuid= object (uuid (uuid-string object :braces braces :downcase downcase)))`
 
-- Function `uuid-number` _object_ &rarr; _value_
+- **Function** `uuid-number` _object_ &rarr; _value_
 
   Answers an integer of type `(unsigned-byte 128)`, which holds the contents
   of the UUID _object_. The value _value_ can later be passed to function 
@@ -125,13 +125,13 @@ implementation of the predicates is more efficient than that.
 
 ## Format Information
 
-- Function `uuid-version` _object_ &rarr; _value_
-- Function `uuid-variant` _object_ &rarr; _value_
-- Function `uuid-node` _object_ &rarr; _variant_
-- Function `uuid-clock-sequence` _object_ &rarr; _variant_
-- Function `uuid-timestamp` _object_ &rarr; _variant_
+- **Function** `uuid-version` _object_ &rarr; _value_
+- **Function** `uuid-variant` _object_ &rarr; _value_
+- **Function** `uuid-node` _object_ &rarr; _variant_
+- **Function** `uuid-clock-sequence` _object_ &rarr; _variant_
+- **Function** `uuid-timestamp` _object_ &rarr; _variant_
 
 ## Special Constructors
 
-- Function `random-uuid` `&key` _generator_ _random-state_ &rarr; _object_
-- Function `uuid-for-name` _string_ `&key` _start_ _end_ _digest_ _namespace_ &rarr; _object_
+- **Function** `random-uuid` `&key` _generator_ _random-state_ &rarr; _object_
+- **Function** `uuid-for-name` _string_ `&key` _start_ _end_ _digest_ _namespace_ &rarr; _object_
