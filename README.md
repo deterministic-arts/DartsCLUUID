@@ -3,7 +3,9 @@
 This is a simple library to work with UUID values. The library primarily
 uses the Leach-Salz variant of UUIDs, but can represent all kinds of UUIDs.
 
-## Types
+## Documentation
+
+### Types
 
 - **Type** `uuid`
 
@@ -15,7 +17,7 @@ uses the Leach-Salz variant of UUIDs, but can represent all kinds of UUIDs.
   Tests, whether _object_ is a value of type `uuid`. This is equivalent
   with `(typep object 'uuid)`.
 
-## Comparing and Hashing
+### Comparing and Hashing
 
 Values of type UUID can be compared for equality as well as order. The
 ordering on UUIDs is total, i.e., every two UUID instances _v1_ and _v2_
@@ -51,7 +53,7 @@ implementation of the predicates is more efficient than that.
   compatible with the type's notion of equality, i.e., for two UUID values
   _v1_ and _v2_, the following property always holds: `(or (uuid/= v1 v2) (eql (uuid-hash v1) (uuid-hash v2)))`
 
-## Reading and Writing
+### Reading and Writing
 
 - **Function** `parse-uuid` string `&key` _start_ _end_ &rarr; _object_
 
@@ -101,7 +103,7 @@ implementation of the predicates is more efficient than that.
     each group of hexadecimal digits must have the "nominal" length (i.e., be of
     8, 4, 4, and finally 12 hex digits, respectively).
 
-## Conversions
+### Conversions
 
 - **Function** `uuid` _object_ &rarr; _uuid_
 
@@ -142,7 +144,7 @@ implementation of the predicates is more efficient than that.
   `uuid` to reconstruct the UUID value. For all UUID values _object_, it 
   is always the case that `(uuid= object (uuid (uuid-number object)))`.
 
-## Special Constructors
+### Special Constructors
 
 - **Function** `random-uuid` `&key` _generator_ _random-state_ &rarr; _object_
 
@@ -158,7 +160,7 @@ implementation of the predicates is more efficient than that.
 
   FIXME
 
-## Format Information
+### Format Information
 
 The following functions extract information about variant and version of a
 UUID value. Certain extractor functions (like `uuid-clock-sequence`, `uuid-timestamp`, etc.)
@@ -171,3 +173,30 @@ of them...
 - **Function** `uuid-node` _object_ &rarr; _variant_
 - **Function** `uuid-clock-sequence` _object_ &rarr; _variant_
 - **Function** `uuid-timestamp` _object_ &rarr; _variant_
+
+## Compatibility with System `UUID`
+
+The UUID provided by this library is comparable to the one provided by
+the [UUID](http://quickdocs.org/uuid/) library with the following 
+differences
+
+ - this library's UUID representation is more compact
+ - this library provides a complete set of comparison operators for 
+   UUIDs as well as a hash function
+ - there is no support for the generation of "v1" style UUIDs in 
+   this library as of now
+
+You can convert between `uuid:uuid` and `darts.lib.uuid:uuid` values,
+for example, by
+
+```
+(defvar *uuid-uuid* (uuid:make-v1-uuid))
+(defvar *darts-uuid* (darts.lib.uuid:uuid (uuid:uuid-to-byte-array *uuid-uuid*)))
+```
+
+and
+
+```
+(defvar *darts-uuid-2* (darts.lib.uuid:random-uuid))
+(defvar *uuid-uuid-2* (uuid:byte-array-to-uuid (darts.lib.uuid:uuid-bytes *darts-uuid-2*)))
+```
