@@ -1,8 +1,7 @@
 # UUID Library
 
 This is a simple library to work with UUID values. The library primarily
-uses the Leach-Salz variant of UUIDs, but can cope with essentially all
-kinds of UUIDs.
+uses the Leach-Salz variant of UUIDs, but can represent all kinds of UUIDs.
 
 ## Types
 
@@ -60,7 +59,14 @@ implementation of the predicates is more efficient than that.
   of type `uuid`. The general format understood by this function is `XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX`
   where each `X` is a hexadecimal digit. Optionally, the value may be enclosed
   in curly braces, i.e., `{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}`; note, that
-  if the opening brace is present, the closing must be, too.
+  if the opening brace is present, the closing must be, too. The number of `X`es 
+  in the pattern is the maximum length; the function also accepts strings,
+  where each group of `X`es is shorter. Note, that at least one digit is
+  required per group. So, the following values result in the same UUID being
+  produced by this function: 
+  
+   - `00000001-0002-0003-0004-000000000005`
+   - `1-2-3-4-5`
   
   If the value can be parsed, the function returns the UUID value. If an
   error is detected, the function returns `nil`.
@@ -81,6 +87,19 @@ implementation of the predicates is more efficient than that.
   upper case letters (the default).
   
   This function returns its first argument _object_
+  
+- **Function** `uuid-string-p` _object_ `&key` _lenient_ _braces_ &rarr; _boolean_
+
+  Tests, whether _object_ is a string, that looks like the supported representation
+  of a UUID value. Note, that this function is slightly more strict than `parse-uuid`,
+  in that
+  
+  - if _braces_ is true, then braces are required, if it is false (the default),
+    then they are *not* accepted.
+    
+  - if _lenient_ is true, the "short" representation is accepted, otherwise (the default)
+    each group of hexadecimal digits must have the "nominal" length (i.e., be of
+    8, 4, 4, and finally 12 hex digits, respectively).
 
 ## Conversions
 
@@ -123,15 +142,32 @@ implementation of the predicates is more efficient than that.
   `uuid` to reconstruct the UUID value. For all UUID values _object_, it 
   is always the case that `(uuid= object (uuid (uuid-number object)))`.
 
+## Special Constructors
+
+- **Function** `random-uuid` `&key` _generator_ _random-state_ &rarr; _object_
+
+  Generates a fresh UUID of the "random" variant. If _generator_ is given it
+  must be a function of a single argument, a positive integer _N_, which returns
+  an `(array (unsigned-byte) (N))` of _N_ random bytes. If _random-state_ is 
+  given, it must be a [random state](http://www.lispworks.com/documentation/lw70/CLHS/Body/26_glo_r.htm#random_state).
+  If neither is given, the function uses `random` with the value of `*random-state*`
+  to generate the bytes. Only one of _generator_ or _random-state_ can be
+  used.
+
+- **Function** `uuid-for-name` _string_ `&key` _start_ _end_ _digest_ _namespace_ &rarr; _object_
+
+  FIXME
+
 ## Format Information
+
+The following functions extract information about variant and version of a
+UUID value. Certain extractor functions (like `uuid-clock-sequence`, `uuid-timestamp`, etc.)
+are meaningful only for certain variants, if at all. These functions are
+provided for completeness, but I have yet to find a reason for using any
+of them...
 
 - **Function** `uuid-version` _object_ &rarr; _value_
 - **Function** `uuid-variant` _object_ &rarr; _value_
 - **Function** `uuid-node` _object_ &rarr; _variant_
 - **Function** `uuid-clock-sequence` _object_ &rarr; _variant_
 - **Function** `uuid-timestamp` _object_ &rarr; _variant_
-
-## Special Constructors
-
-- **Function** `random-uuid` `&key` _generator_ _random-state_ &rarr; _object_
-- **Function** `uuid-for-name` _string_ `&key` _start_ _end_ _digest_ _namespace_ &rarr; _object_
