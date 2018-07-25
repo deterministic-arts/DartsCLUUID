@@ -31,12 +31,33 @@ kinds of UUIDs.
 
 ## Comparing and Hashing
 
+Values of type UUID can be compared for equality as well as order. The
+ordering on UUIDs is total, i.e., every two UUID instances _v1_ and _v2_
+can be compared, and exactly one of
+
+ - `uuid< v1 v2`
+ - `uuid= v1 v2`
+ - `uuid> v1 v2`
+ 
+will answer true. The ordering carefully reflects the lexicographic
+ordering of the string representations of UUIDs, i.e., it is always the
+case that
+
+ - `(uuidXX v1 v2)` if (and only if) `(stringXX (uuid-string v1) (uuid-string v2))`
+ 
+where `XX` is one of `<`, `<=`, `=`, `>=`, `>`, `/=`. Note, that the actual
+implementation of the predicates is more efficient than that.
+
 - Function `uuid=` _object1_ _object2_ &rarr; _boolean_
 - Function `uuid/=` _object1_ _object2_ &rarr; _boolean_
 - Function `uuid<=` _object1_ _object2_ &rarr; _boolean_
 - Function `uuid<` _object1_ _object2_ &rarr; _boolean_
 - Function `uuid>=` _object1_ _object2_ &rarr; _boolean_
 - Function `uuid>` _object1_ _object2_ &rarr; _boolean_
+
+  Each of these functions compares the argument values, both of which must
+  be instances of type `uuid`, and returns true, if the values have the 
+  ordering/equality relationship hinted at by the suffix (`=`, `<`, ...)
 
 - Function `uuid-hash` _object_ &rarr; _fixnum_
 
