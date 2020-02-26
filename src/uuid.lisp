@@ -1,6 +1,6 @@
 #|                                           -*- mode: lisp; coding: utf-8 -*-
   Deterministic Arts -- UUID support
-  Copyright (c) 2016, 2018 Dirk Esser
+  Copyright (c) 2016, 2018, 2020 Dirk Esser
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@
   THE SOFTWARE.
 |#
 
-(in-package "DARTS.LIB.UUID")
+(in-package #:darts.lib.uuid)
 
 (defstruct (uuid (:copier nil) (:constructor %make-uuid (low-word high-word))
                  (:predicate uuidp))

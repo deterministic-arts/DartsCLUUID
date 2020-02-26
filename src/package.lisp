@@ -1,6 +1,6 @@
 #|                                           -*- mode: lisp; coding: utf-8 -*-
   Deterministic Arts -- UUID support
-  Copyright (c) 2016, 2018 Dirk Esser
+  Copyright (c) 2016, 2018, 2020 Dirk Esser
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -21,10 +21,10 @@
   THE SOFTWARE.
 |#
 
-(defpackage "DARTS.LIB.UUID"
-  (:use "COMMON-LISP" "CL-PPCRE" "IRONCLAD" "TRIVIAL-UTF-8")
-  (:shadowing-import-from "COMMON-LISP" "NULL")
-  (:export "UUID" "UUIDP" "UUID-BYTES" "UUID-STRING" "UUID-HASH" "UUID-VERSION" 
-           "PARSE-UUID" "PRINT-UUID" "RANDOM-UUID" "UUID=" "UUID/=" "UUID<" "UUID<=" 
-           "UUID>=" "UUID>" "UUID-FOR-NAME" "UUID-VARIANT" "UUID-CLOCK-SEQUENCE"
-           "UUID-TIMESTAMP" "UUID-NODE" "UUID-NUMBER" "UUID-STRING-P"))
+(defpackage #:darts.lib.uuid
+  (:use #:common-lisp #:cl-ppcre #:ironclad #:trivial-utf-8)
+  (:shadowing-import-from #:common-lisp #:null)
+  (:export #:uuid #:uuidp #:uuid-bytes #:uuid-string #:uuid-hash #:uuid-version 
+           #:parse-uuid #:print-uuid #:random-uuid #:uuid= #:uuid/= #:uuid< #:uuid<=
+           #:uuid>= #:uuid> #:uuid-for-name #:uuid-variant #:uuid-clock-sequence
+           #:uuid-timestamp #:uuid-node #:uuid-number #:uuid-string-p))
