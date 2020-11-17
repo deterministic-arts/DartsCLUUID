@@ -100,8 +100,7 @@
       array)))
 
 (defun uuid-number (object)
-  (logior (ash (uuid-high-word object) 64) 
-          (uuid-low-word object)))
+  (dpb (uuid-high-word object) (byte 64 64) (uuid-low-word object)))
 
 (defun uuid-version (object)
   (logand #x0f (ash (uuid-high-word object) -12)))
@@ -184,7 +183,7 @@
       (uuid object)
       (string (or (parse-uuid object) (bad-value)))
       (symbol (or (parse-uuid (symbol-name object)) (bad-value)))
-      ((unsigned-byte 128) (%make-uuid (logand object #xFFFFFFFFFFFFFFFF) (ash object -64)))
+      ((unsigned-byte 128) (%make-uuid (ldb (byte 64 0) object) (ldb (byte 64 64) object)))
       ((array (unsigned-byte 8) (16)) 
        (let ((high 0) (low 0))
          (loop
