@@ -67,8 +67,8 @@
         ((dash () (write-char #\- stream))
          (digits (number count)
            (loop
-             :for k :downfrom (1- count) :to 0
-             :do (write-char (char digits (ldb (byte 4 (* 4 k)) number)) stream))))
+             for k downfrom (1- count) to 0
+             do (write-char (char digits (ldb (byte 4 (* 4 k)) number)) stream))))
       (when braces (write-char #\{ stream))
       (digits (ash high -32) 8)
       (dash)
@@ -92,9 +92,9 @@
   (let ((array (make-array 16 :element-type '(unsigned-byte 8))))
     (flet ((emplace (number pointer)
              (loop
-               :for k :downfrom 56 :to 0 :by 8 
-               :for p :upfrom pointer
-               :do (setf (aref array p) (ldb (byte 8 k) number)))))
+               for k downfrom 56 to 0 by 8 
+               for p upfrom pointer
+               do (setf (aref array p) (ldb (byte 8 k) number)))))
       (emplace (uuid-high-word object) 0)
       (emplace (uuid-low-word object) 8)
       array)))
@@ -172,34 +172,46 @@
                       (ash (parse-group 1) 16)
                       (parse-group 2))))))))
 
-(defun uuid (object)
-  (labels
-      ((bad-value ()
-         (error 'simple-type-error
+(defgeneric uuid (object)
+  (:method ((object uuid)) object)
+  (:method ((object t))
+    (error 'simple-type-error
                 :datum object :expected-type 'uuid
                 :format-control "~S is not a well-formed UUID value" 
                 :format-arguments (list object))))
-    (typecase object
-      (uuid object)
-      (string (or (parse-uuid object) (bad-value)))
-      (symbol (or (parse-uuid (symbol-name object)) (bad-value)))
-      ((unsigned-byte 128) (%make-uuid (ldb (byte 64 0) object) (ldb (byte 64 64) object)))
-      ((array (unsigned-byte 8) (16)) 
-       (let ((high 0) (low 0))
-         (loop
-           :for k :upfrom 0
-           :for j :downfrom 56 :to 0 :by 8
-           :do (setf (ldb (byte 8 j) high) (aref object k)))
-         (loop
-           :for k :upfrom 8 
-           :for j :downfrom 56 :to 0 :by 8
-           :do (setf (ldb (byte 8 j) low) (aref object k)))
-         (%make-uuid low high)))
-      (t (bad-value)))))
+
+(defmethod uuid ((object string))
+  (or (parse-uuid object)
+      (call-next-method)))
+
+(defmethod uuid ((object symbol))
+  (or (parse-uuid (symbol-name object))
+      (call-next-method)))
+
+(defmethod uuid ((object integer))
+  (or (and (typep object '(unsigned-byte 128)) (%make-uuid (ldb (byte 64 0) object) (ldb (byte 64 64) object)))
+      (call-next-method)))
+
+(defmethod uuid ((object array))
+  (if (not (typep object '(array (unsigned-byte 8) (16))))
+      (call-next-method)
+      (let ((high 0) (low 0))
+        (locally (declare (type (array (unsigned-byte 8) (16)) object))
+          (loop
+            for k upfrom 0
+            for j downfrom 56 to 0 by 8
+            do (setf (ldb (byte 8 j) high) (aref object k)))
+          (loop
+            for k upfrom 8 
+            for j downfrom 56 to 0 by 8
+            do (setf (ldb (byte 8 j) low) (aref object k)))
+          (%make-uuid low high)))))
+
 
 (defmethod make-load-form ((object uuid) &optional environment)
   (declare (ignore environment))
   `(%make-uuid ,(uuid-low-word object) ,(uuid-high-word object)))
+
 
 #-(and)
 (define-compiler-macro uuid (&whole form value)
