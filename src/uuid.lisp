@@ -41,6 +41,19 @@
       (t (< (uuid-low-word u1)
             (uuid-low-word u2))))))
 
+(defun compare-uuids (object1 object2)
+  (let ((h1 (uuid-high-word object1))
+        (h2 (uuid-high-word object2)))
+    (cond
+      ((< h1 h2) -1)
+      ((> h1 h2) 1)
+      (t (let ((l1 (uuid-low-word object1))
+               (l2 (uuid-low-word object2)))
+           (cond
+             ((< l1 l2) -1)
+             ((> l1 l2) 1)
+             (t 0)))))))
+
 (defun uuid-hash (object)
   (logxor (sxhash (uuid-high-word object))
 	  (sxhash (uuid-low-word object))))

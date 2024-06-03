@@ -27,4 +27,4 @@
   (:export #:uuid #:uuidp #:uuid-bytes #:uuid-string #:uuid-hash #:uuid-version 
            #:parse-uuid #:print-uuid #:random-uuid #:uuid= #:uuid/= #:uuid< #:uuid<=
            #:uuid>= #:uuid> #:uuid-for-name #:uuid-variant #:uuid-clock-sequence
-           #:uuid-timestamp #:uuid-node #:uuid-number #:uuid-string-p))
+           #:uuid-timestamp #:uuid-node #:uuid-number #:uuid-string-p #:compare-uuids))

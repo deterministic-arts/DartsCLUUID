@@ -90,6 +90,24 @@ and [WBTree](http://quickdocs.org/dartsclhashtree/):
   Each of these functions compares the argument values, both of which must
   be instances of type `uuid`, and returns true, if the values have the 
   ordering/equality relationship hinted at by the suffix (`=`, `<`, ...)
+  
+- **Function** `compare-uuids` _object1_ _object2_ &rarr; _integer_
+
+  Compares the given UUIDs for order, and answers an integer value, that is
+  
+   - negative, if _object1_ is `uuid<` compared to _object2_
+   - zero, if _object1_ is `uuid=` compared to _object2_
+   - positive, if _object1_ is `uuid>` compared to _object2_
+   
+  i.e., the result of this function satisfies
+  
+  ```common-lisp
+  (eql (signum (compare-uuids object1 object2))
+       (cond
+         ((uuid< object1 object2) -1)
+         ((uuid= object1 object2) 0)
+         ((uuid> object1 object2) 1)))
+  ```
 
 - **Function** `uuid-hash` _object_ &rarr; _fixnum_
 
